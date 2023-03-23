@@ -12,15 +12,17 @@ db = SQLAlchemy(metadata=metadata)
 
 # Add models here
 class RestaurantPizza(db.Model, SerializerMixin):
+    
+    __tablename__ = 'restaurants_pizzas'
     id = db.Column(db.Integer, primary_key=True)
     
-    serialize_rules= ('-pizzas.restaurant', '-restaurants.pizza')
+    # serialize_rules= ('-pizzas.restaurant', '-restaurants.pizza')
     price= db.Column(db.Integer)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
     
-    pizza_id= db.Column(db.Integer, db.ForeignKey('pizzas.id'))
-    restaurant_id= db.Column(db.Integer, db.ForeignKey('restaurants.id'))
+    pizza_id= db.Column(db.Integer, db.ForeignKey('pizza.id'))
+    restaurant_id= db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     
     @validates('price')
     def validates_price(self, key, price):
@@ -28,8 +30,9 @@ class RestaurantPizza(db.Model, SerializerMixin):
             raise AssertionError('Price must be greater than 0')
         return price
 class Pizza(db.Model, SerializerMixin):
+    __tablename__ = 'pizza'
 
-    serialize_rules= ('-restaurants', '-restaurants_pizzas')
+    # serialize_rules= ('-restaurants', '-restaurants_pizzas')
     
     
     id = db.Column(db.Integer, primary_key=True)
@@ -42,11 +45,12 @@ class Pizza(db.Model, SerializerMixin):
     pizzas= db.relationship('RestaurantPizza', backref='pizza')
     
 class Restaurant(db.Model, SerializerMixin):
-    serialize_rules=  ('-pizzas', '-restaurants_pizzas')
+    __tablename__ = 'restaurant'
+    # serialize_rules=  ('-pizzas', '-restaurants_pizzas')
     
     id= db.Column(db.Integer, primary_key=True)
     
     name= db.Column(db.String)
     address= db.Column(db.String)
     
-    pizzas= db.relationship('RestaurantPizza', backref='restaurant')
+    pizzas= db.relationship('Pizza', backref='restaurant_pizza')
